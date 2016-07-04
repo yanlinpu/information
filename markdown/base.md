@@ -1,4 +1,4 @@
-[锚访问#user-content-#{title_name}jump](#user-content-jump)
+[锚访问##{title_name}jump](#jump)
 
 [百度title=test](http://www.baidu.com "test")
 
@@ -17,6 +17,8 @@
 >
 > 现在回到第一级引用。
 
+## jump
+跳转到这里
 
 * 在列表项目内放进引用，那 > 就需要缩进  
   > 1. 111111  
@@ -31,5 +33,3 @@ First Header | Second Header | Third Header
 Left         | Center        | Right
 Left         | Center        | Right
     
-## jump
-跳转到这里
