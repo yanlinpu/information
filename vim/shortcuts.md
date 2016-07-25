@@ -1,4 +1,5 @@
 ## [VIM快捷键(转)](http://linux.chinaunix.net/techdoc/desktop/2009/03/15/1101397.shtml)
+## [Search only between specific line numbers?](http://stackoverflow.com/questions/3264120/vim-search-only-between-specific-line-numbers)
 
 光标移动：  
 四个方向
@@ -32,6 +33,8 @@ fx，tx，Fx，Tx    在当前行查找字符
 : s/If/Since          将下一个"If"换成"Since"  
 : %s/If/Since       将全部"If"换成"Since"  
 : 1,3 s/If/Since/g  只对1,3行有效,如无前缀,只对当前行有效  
+在第m行，和第n(n>m)之间查找某个关键词  
+/\%>12l\%<24lsearch  
 表达式:  
 . 代替一个字符  
 \* 表示一个或多个字符的重复  
