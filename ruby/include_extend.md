@@ -175,3 +175,42 @@ A.new.b(2)                          # => "b" [2]
 A.d(5,6,7) { p "block given" }      # => :d [5,6,7] "block given"
 A.d(5,6,7)                          # => :d [5,6,7]
 ```
+
+## define_method(meth) { |args, &block| if block ... else ... end ... } 
+```
+obj = Object.new
+class << obj 
+  define_method :a do
+    yield
+  end 
+
+  define_method :b do |*args, &block|
+    if block_given? # return false always
+      puts 'block is exist'
+      block.call(*args)
+    else
+      puts 'block not exist'
+    end 
+  end 
+
+  define_method :c do |*args, &block|
+    if block
+      puts 'block is exist'
+      block.call(*args)
+    else
+      puts 'block not exist'
+    end 
+  end 
+end
+#puts obj.a{puts 'hi'}
+# => `block in singleton class': no block given (yield) (LocalJumpError)
+puts obj.b
+# => block not exist
+puts obj.b("ylp") {|body| puts "hello #{body}"}
+# => block not exist
+puts obj.c
+# => block not exist
+puts obj.c("ylp") {|body| puts "hello #{body}"}
+# => block is exist
+# => hello ylp
+```
