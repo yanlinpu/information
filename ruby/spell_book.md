@@ -313,3 +313,52 @@ names = ['bob','bill']
 names.map(&:capitalize.to_proc)
 names.map(&:capitalize)                         # & 将对象转换为Proc
 ```
+
+## No.33 binding
+
+```
+def get_binding                                                                                                                                                                        
+  a = 1 
+  b = 2 
+  binding
+end
+a = 100 
+eval("puts a + b", get_binding)
+#= > 3
+```
+
+## No.34 send
+
+```
+class Quote
+  def initialize
+    @str = "The quick brown fox"
+  end 
+end
+def create_method_using_a_closure
+  str2 = "jumps over the lazy dog."
+  Quote.send(:define_method, :display) do
+    puts "#{@str} #{str2}"
+  end 
+end
+
+create_method_using_a_closure
+Quote.new.display
+# => The quick brown fox jumps over the lazy dog.
+
+class Quote2
+  def initialize
+    @str = "The quick brown fox"
+  end 
+end
+def create_method_using_a_closure2
+  str2 = "jumps over the lazy dog."
+  lambda do
+    puts "#{@str} #{str2}"
+  end 
+end
+Quote2.send(:define_method, :display, create_method_using_a_closure2) 
+
+Quote2.new.display
+# => The quick brown fox jumps over the lazy dog.
+```
