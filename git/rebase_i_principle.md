@@ -63,40 +63,40 @@ $ git rebase --continue
     
     [diffs Chunk Header](https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/diffs)
 
-``` 
-$ git rebase -i HEAD~5
-$ git reset HEAD^
-$ git add -p
-# 此处显示补丁块（hunk），用户根据提示信息，输入自己的选择
-# 输入 y，此块儿补丁要提交
-# 输入 n，此块儿补丁不提交
-# 输入 s，尝试将此块儿补丁细分
-# 输入 e，打开编辑器对此块儿补丁进行再次编辑
-$ ----> s
-$ ----> e
-$ git commit -e -C HEAD@{1}
-$ git add -u
-$ git commit -m 'second part of split commit'
-$ git rebase --continue 
-``` 
+    ``` 
+      $ git rebase -i HEAD~5
+      $ git reset HEAD^
+      $ git add -p
+      # 此处显示补丁块（hunk），用户根据提示信息，输入自己的选择
+      # 输入 y，此块儿补丁要提交
+      # 输入 n，此块儿补丁不提交
+      # 输入 s，尝试将此块儿补丁细分
+      # 输入 e，打开编辑器对此块儿补丁进行再次编辑
+      $ ----> s
+      $ ----> e
+      $ git commit -e -C HEAD@{1}
+      $ git add -u
+      $ git commit -m 'second part of split commit'
+      $ git rebase --continue 
+    ``` 
   - 紧耦合
 
-```
-$ git rebase -i HEAD~5
-```
+    ```
+      $ git rebase -i HEAD~5
+    ```
 
     如果要拆分的提交，不同的实现逻辑耦合在一起，难以通过补丁块拣选（git add -p）的方式修改提交，怎么办？这时可以 直接编辑文件，删除要剥离出此次提交的修改，然后执行
     
-```
-$ git commit --amend
-```
+    ```
+      $ git commit --amend
+    ```
 
-接下来执行下面的命令，还原出原有的文件修改，然后再次提交。如下
+    接下来执行下面的命令，还原出原有的文件修改，然后再次提交。如下
 
-```
-$ git checkout HEAD@{1} -- .
-$ git commit
-``` 
+    ```
+      $ git checkout HEAD@{1} -- .
+      $ git commit
+    ``` 
    
 #### 2.	提交做对
 
