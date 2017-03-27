@@ -41,7 +41,7 @@ pick c264051 Revert "added file_size" - not implemented correctly
 
 - 不拆分file
 
-  ```
+```
 $ git rebase -i HEAD~5 #如上
 #修改21d80a5的action为edit
 #edit   21d80a5 added number to log
@@ -53,7 +53,8 @@ $ git commit 'first part of split commit'
 $ git add file2
 $ git commit 'second part of split commit'
 $ git rebase --continue
-  ```
+```
+
 - 拆分某个file
 
   - 松耦合
@@ -62,7 +63,7 @@ $ git rebase --continue
     
     [diffs Chunk Header](https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/diffs)
 
-    ``` 
+``` 
 $ git rebase -i HEAD~5
 $ git reset HEAD^
 $ git add -p
@@ -77,23 +78,28 @@ $ git commit -e -C HEAD@{1}
 $ git add -u
 $ git commit -m 'second part of split commit'
 $ git rebase --continue 
-    ``` 
+``` 
   - 紧耦合
 
-    ```
+```
 $ git rebase -i HEAD~5
-    ```
+```
+
     如果要拆分的提交，不同的实现逻辑耦合在一起，难以通过补丁块拣选（git add -p）的方式修改提交，怎么办？这时可以 直接编辑文件，删除要剥离出此次提交的修改，然后执行
-      ```
+    
+```
 $ git commit --amend
-      ```
+```
+
 接下来执行下面的命令，还原出原有的文件修改，然后再次提交。如下
-      ```
+
+```
 $ git checkout HEAD@{1} -- .
 $ git commit
-      ``` 
+``` 
    
 #### 2.	提交做对
+
 ```
 # 发现历史提交 54321 中包含错误，直接在当前工作区中针对这个错误进行修改
 $ git add README
@@ -101,11 +107,14 @@ $ git commit --fixup 54321
 $ git rebase -i --autosquash 54321^
 $ git push origin master -f
 ```
+
 #### 3. 提交做好
+
 ```
 $ git commit -se
 
-  1 theme
+#style
+  1 theme
   2 
   3 1.What——要解决什么问题？什么情况下会发生？  
   4 2.How ——怎么样解决这个问题  
@@ -119,4 +128,5 @@ $ git commit -se
 
 `$ git reset origin/master --hard`
 ### 减少merge提交
+
 `$ git pull --rebase origin master` || `$ git rebase origin/master` || `$ git rebase -i origin/master`
