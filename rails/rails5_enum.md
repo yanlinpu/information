@@ -47,7 +47,7 @@ end
     <%= form.select :category, enum_options_for_select(Report, :category) %>
   </div>
   <%# redio %>
-  <% enum_options_for_select(Report, :category).each do |cg| %>
+  <% enum_options_for_select(Report, :category).each_with_index do |cg, i| %>
     <% if @report.category.nil? %>
       <%= form.radio_button(:category, cg.last, { checked: i==0 }) %>
     <% else %>
