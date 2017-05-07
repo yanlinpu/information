@@ -81,6 +81,27 @@ I18n.available_locales = [:en, "zh-CN"]
 I18n.default_locale = "zh-CN"
 ```
 
+- config/locales/zh-CN.yml
+
+```
+# coding: utf-8
+zh-CN:
+  activerecord:
+    attributes:
+      report/category: #参考注意事项
+        irrational: "对待服务不周等情况不理智"
+        smoking: "公共场合吸烟"
+        take_photo: "在禁止拍照区域拍照"
+        vulgar: "言语粗俗"
+        garbarge: "随地扔垃圾"
+        toilet: "随地大小便"
+        loudly: "公共场合大声喧哗"
+        jump_queue: "随意插队"
+        norespect: "不尊重当地居民风俗"
+        spitting: "随地吐痰"
+        others: "其他"
+```
+
 - 注意事项
 
   - http://stackoverflow.com/questions/43116134/rails-i18n-how-to-translate-enum-of-a-model
