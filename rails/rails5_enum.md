@@ -4,8 +4,17 @@
 
 ```
 class Report < ApplicationRecord
+  def initialize(*)
+    super
+  rescue ArgumentError
+    raise if valid?
+  end
+
   enum category: [:irrational, :smoking, :take_photo, :vulgar, :garbarge, :toilet, :loudly, :jump_queue, :norespect, :spitting, :others]
 end
+
+  validates :category, inclusion: { in: categories, message: "%{value} is not valid,please select in #{ApplicationController.helpers.enum_validation(Report, :category)}" }
+
 ```
 - app/helpers/enum_i18n_helper.rb
 
@@ -32,6 +41,14 @@ module EnumI18nHelper
   # enum_i18n(Report, :approval_state, :unprocessed)
   def enum_i18n(class_name, enum, key)
     I18n.t("activerecord.attributes.#{class_name.model_name.i18n_key}/#{enum.to_s}.#{key}")
+  end
+
+  def enum_validation(class_name, enum)
+    result = []
+    enum_options_for_select(class_name, enum).each_with_index do |value, index|
+      result << [index, value.first]
+    end
+    result
   end
 end
 
@@ -108,4 +125,5 @@ zh-CN:
     `<%= form.label :category %> error zh-CN.yml`
   - https://mikerogers.io/2016/05/19/improving-rails-enums-using-i18n.html
     `show helpers`
-
+  - https://github.com/rails/rails/issues/13971 
+    `validation with enum: ActiveRecord enum: use validation if exists instead of raising ArgumentError`
