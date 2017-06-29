@@ -1,2 +1,1 @@
-## Something about ruby, rails, js, vim and git
-adfwerw
+## Something about ruby, rails, js, vim, git and so on.
