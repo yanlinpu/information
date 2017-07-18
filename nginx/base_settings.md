@@ -16,15 +16,18 @@ nginx配置文件主要分为六个区域：
 ## main模块
 ```
 # 定义Nginx运行的用户和用户组，默认由nobody账号运行
+# user user [group];
 user www www;
 
 # nginx进程数，建议设置为等于CPU总核心数。
+# worker_processes number | auto;
 worker_processes 8;
 
 # 进程文件
 pid /var/run/nginx.pid;
 
-# 全局错误日志定义类型，[ debug | info | notice | warn | error | crit ]
+# 全局错误日志定义类型 服务日志
+# error_log file | stderr [debug | info | notice | warn | error | crit | alert| emerg]
 error_log  /var/log/nginx/error.log  notice;
 
 # 一个nginx进程打开的最多文件描述符数目，理论值应该是最多打开文件数（系统的值ulimit -n）与nginx进程数相除，
@@ -37,7 +40,23 @@ events模块来用指定nginx的工作模式和工作模式及连接数上限，
 
 ```
 events {
+  # 设置网络连接的序列化 
+  # 当某一时刻只有一个网络连接到来时，多个睡眠进程会被同时惊醒，但只有一个进程可获得连接。
+  # 如果每次唤醒的进程数太多，会影响一部分系统性能。默认on
+  # accept_mutex on | off
+
+  # 设置是否允许同时接收多个网络连接。默认off
+  # multi_accept on | off
+  multi_accept on
+
+  # 事件驱动模型的选择
+  # use method
+  # 常用method有：select poll kqueue epoll rtsig /dev/poll eventport
   use epoll;
+
+  # 配置最大连接数
+  # worker_connections number;
+  # number 不能大于操作系统支持打开的最大文件句柄数量。
   worker_connections 40960;
 }
 ```
@@ -59,8 +78,15 @@ http {
   include mime.types; 
   
   # 默认文件类型
+  # 默认为 text/plain
   default_type application/octet-stream;
-  
+
+  # log_format name string 
+  # name 默认为 combined
+  log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';    
+
   # 默认编码
   charset utf-8; 
   
@@ -86,14 +112,29 @@ http {
   # 开启高效文件传输模式，sendfile指令指定nginx是否调用sendfile函数来输出文件，对于普通应用设为 on，
   # 如果用来进行下载等应用磁盘IO重负载应用，可设置为off，以平衡磁盘与网络I/O处理速度，降低系统的负载。
   # 注意：如果图片显示不正常把这个改成off。
+  # sendfile on | off;
   sendfile on; 
+  # sendfile_max_chunk size;
+  # 默认为0
+  # if 0 sendfile()传输的数据量大小无限制，if > 0 sendfile()传输的数据量最大不能超过这个值
+  sendfile_max_chunk 128k;
+
   
   # 开启目录列表访问，合适下载服务器，默认关闭。
   autoindex on;
   
   tcp_nopush on; #防止网络阻塞
   tcp_nodelay on; #防止网络阻塞
-  keepalive_timeout 65; #长连接超时时间，单位是秒
+
+  # 配置连接超时时间
+  # keepalive_timeout timeout[header_timeout];
+  # 长连接超时时间，单位是秒
+  # 服务器端保持连接的时间为120s，发送给用户端的应答报文头部中keep-alive域的时间为10s
+  keepalive_timeout 120s 100s; 
+
+  # 单链接请求数上限
+  # 用于限制用户通过某一连接向Nginx服务器发送请求的次数。
+  # keepalive_requests number; 默认100
 
   #FastCGI相关参数是为了改善网站的性能：减少资源占用，提高访问速度。下面参数看字面意思都能理解。
   fastcgi_connect_timeout 300;
@@ -131,17 +172,52 @@ http {
 
 ## server 模块
 sever 模块是http的子模块，它用来定一个虚拟主机  
-```
+```                
 server {
-  listen       8080;
+  # 配置网络监听
+  # 一、监听IP地址
+  # listen address[:port][default_server][setfib=number][backlog=number][rcvbuf=size][sndbuf=size][deferred][accept_filter=filter][bind][ssl];
+  # 二、监听端口
+  # listen port [default_server][setfib=number][backlog=number][rcvbuf=size][sndbuf=size][accept_filter=filter][deferred][bind][ipv6only=on|off][ssl];
+  # 三、UNIX Domain Socket
+  # listen unix:path [default_server][backlog=number][rcvbuf=size][sndbuf=size][accept_filter=filter][deferred][bind][ssl];
+  listen       8080; # 监听具体端口上的所有IP连接 等同于 listen *:8080
+
+  # 虚拟主机配置
+  # server_name name ...;
+  # server_name ~^www\d+\.myserver.com$; regex
   server_name  localhost 192.168.12.10 www.yangyi.com;
   
   # 全局定义，如果都是这一个目录，这样定义最简单。
   # 表示在这整个server虚拟主机内，全部的root web根目录
   root   /Users/yangyi/www;
+
   index  index.php index.html index.htm; 
+
   charset utf-8;
+
+  # 设置网址的错误页面
+  # error_page code ... [=[response]] uri
+  error_page  404              /404.html;
+  error_page  500 502 503 504  /50x.html;
+  error_page 410 =301          /empty.gif;
+
+  # 黑名单 白名单 访问权限
+  # allow address | CIDR | all;
+  # deny address | CIDR |all
+  # CIDR 例如：202.80.18.23/25 其中/25代表IP地址前25位是网络部分，其余位代表主机部分。
+  # 遇到匹配的配置，停止向下所搜相关配置。
+  allow 36.110.21.194;
+  allow 172.16.128.114;
+  allow 10.8.0.0/16;
+  deny all;
+  # 自定义服务日志
+  # access_log path[format[buffer=size]]
+  # 默认 access_log logs/access.log combined;
+  # 取消 access_log off;
+  # main 指向上面的 log_format
   access_log  usr/local/var/log/host.access.log  main;
+
   error_log  usr/local/var/log/host.error.log  error;
   rewrite_log on;
   ...
@@ -153,7 +229,12 @@ location模块是nginx中用的最多的，也是最重要的模块了，什么�
 ```
 server {
   ...
-  #图片缓存时间设置
+  # location [ = | ~ | ~* | ^~ ] uri {...}
+  # = 标准uri前， 严格与URI匹配
+  # ~ 表示uri包含正则，并区分大小写
+  # ~* 不区分大小写
+  # ^~ 用于标准uri前，要求Nginx服务器找到标识uri和请求字符串匹配度最高的location后，立即使用此location处理请求，不再使用location块中的正则uri和请求字符串做匹配。
+  # 图片缓存时间设置
   location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
     expires 10d;
   }
