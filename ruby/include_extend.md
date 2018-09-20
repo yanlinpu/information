@@ -27,6 +27,7 @@ end
 p Person.verbal_object_id    #=>  "my object id is ......"
 
 # 添加实例方法和类方法
+# Module included append_features介绍 https://ruby-china.org/topics/30174
 # self.included -> extend(one module(ClassMethods) in this module(ExtendThroughInclude))
 # and the methods in ClassMethods are class_methods for which included ExtendThroughInclude(Person)
 module ExtendThroughInclude
